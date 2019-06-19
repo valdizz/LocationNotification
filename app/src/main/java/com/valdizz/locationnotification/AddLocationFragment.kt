@@ -24,32 +24,30 @@ class AddLocationFragment : DialogFragment() {
         if (context is OnButtonClickListener) {
             onButtonClickListener = context
         } else {
-            throw ClassCastException(context.toString() + " must implement OnButtonClickListener.")
+            throw ClassCastException("$context must implement OnButtonClickListener.")
 
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_add_location, container, false)
-    }
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
+        inflater.inflate(R.layout.fragment_add_location, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        btn_ok.setOnClickListener {
-            if (et_latitude.text.isEmpty() || et_longitude.text.isEmpty()) {
+        btnOk.setOnClickListener {
+            if (etLatitude.text.isEmpty() || etLongitude.text.isEmpty()) {
                 Toast.makeText(activity, getString(R.string.msg_incorrect_coordinates), Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            val latitude = et_latitude.text.toString().toDouble()
-            val longitude = et_longitude.text.toString().toDouble()
+            val latitude = etLatitude.text.toString().toDouble()
+            val longitude = etLongitude.text.toString().toDouble()
             if (latitude in -90.0..90.0 && longitude in -180.0..180.0) {
                 onButtonClickListener?.addGeofenceButtonClick(LatLng(latitude, longitude))
                 dismiss()
-            }
-            else {
+            } else {
                 Toast.makeText(activity, getString(R.string.msg_incorrect_coordinates), Toast.LENGTH_SHORT).show()
             }
         }
-        btn_cancel.setOnClickListener { dismiss() }
+        btnCancel.setOnClickListener { dismiss() }
     }
 
     interface OnButtonClickListener {

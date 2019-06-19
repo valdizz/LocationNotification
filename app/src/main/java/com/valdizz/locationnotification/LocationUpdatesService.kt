@@ -39,8 +39,7 @@ class LocationUpdatesService : Service() {
         val startedFromNotification = intent?.getBooleanExtra(EXTRA_STARTED_FROM_NOTIFICATION, false) ?: false
         if (startedFromNotification) {
             geofencingEvent(intent)
-        }
-        else {
+        } else {
             startForegroundService()
             requestLocationUpdates()
         }

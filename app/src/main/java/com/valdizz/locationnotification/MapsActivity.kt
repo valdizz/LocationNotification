@@ -38,8 +38,8 @@ import kotlinx.android.synthetic.main.activity_maps.*
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLongClickListener, AddLocationFragment.OnButtonClickListener {
 
     private lateinit var map: GoogleMap
-    private var fusedLocationClient: FusedLocationProviderClient? = null
-    private var geofencingClient: GeofencingClient? = null
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var geofencingClient: GeofencingClient
     private var selectedLocationMarker: Marker? = null
     private var geofenceCircle: Circle? = null
     private var broadcastReceiver: BroadcastReceiver? = null
@@ -51,19 +51,21 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         geofencingClient = LocationServices.getGeofencingClient(this)
 
-        btn_add_geofence.setOnClickListener {
+        btnAddGeofence.setOnClickListener {
             AddLocationFragment.newInstance().show(supportFragmentManager, GEOFENCE_ADD_DIALOG)
         }
-        btn_remove_geofence.setOnClickListener {
+        btnRemoveGeofence.setOnClickListener {
             removeGeofence()
         }
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+        createBroadcastReceiver()
     }
 
-    override fun onStart() {
-        super.onStart()
+
+
+    private fun createBroadcastReceiver() {
         broadcastReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 when (intent?.action) {
@@ -86,10 +88,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
             val latitude = sharedPreferences.getFloat(LATITUDE, 0f)
             val longitude = sharedPreferences.getFloat(LONGITUDE, 0f)
             markSelectedLocation(LatLng(latitude.toDouble(), longitude.toDouble()))
-            btn_remove_geofence.isVisible = true
-        }
-        else {
-            btn_remove_geofence.isVisible = false
+            btnRemoveGeofence.isVisible = true
+        } else {
+            btnRemoveGeofence.isVisible = false
         }
     }
 
@@ -101,8 +102,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
                 .putFloat(LATITUDE, selectedLocationMarker?.position?.latitude?.toFloat() ?: 0f)
                 .putFloat(LONGITUDE, selectedLocationMarker?.position?.longitude?.toFloat() ?: 0f)
                 .apply()
-        }
-        else {
+        } else {
             sharedPreferences.edit().clear().apply()
         }
     }
@@ -125,20 +125,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
     @SuppressLint("MissingPermission")
     private fun enableMyLocation() {
         if (checkPermissions()) {
-            fusedLocationClient?.lastLocation?.addOnCompleteListener {
+            fusedLocationClient.lastLocation?.addOnCompleteListener {
                 if (it.isSuccessful) {
                     map.isMyLocationEnabled = true
                     map.uiSettings.isMyLocationButtonEnabled = true
                     val location = LatLng(it.result!!.latitude, it.result!!.longitude)
                     map.animateCamera(CameraUpdateFactory.newLatLngZoom(location, DEFAULT_ZOOM))
-                }
-                else {
+                } else {
                     map.isMyLocationEnabled = false
                     map.uiSettings.isMyLocationButtonEnabled = false
                 }
             }
-        }
-        else {
+        } else {
             showSnackbar(getString(R.string.insufficient_permissions))
             requestPermissions(LOCATION_PERMISSION_MY_LOCATION)
         }
@@ -147,19 +145,17 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
     @SuppressLint("MissingPermission")
     fun addGeofence(latLng: LatLng) {
         if (checkPermissions()) {
-            geofencingClient?.addGeofences(getGeofencingRequest(latLng), getGeofencePendingIntent())?.addOnCompleteListener{
+            geofencingClient.addGeofences(getGeofencingRequest(latLng), getGeofencePendingIntent())?.addOnCompleteListener{
                 if (it.isSuccessful) {
                     markSelectedLocation(latLng)
                     startService(Intent(this, LocationUpdatesService::class.java))
-                    btn_remove_geofence.isVisible = true
+                    btnRemoveGeofence.isVisible = true
                     showSnackbar(getString(R.string.geofence_added))
-                }
-                else {
+                } else {
                     showSnackbar(it.exception?.localizedMessage ?: getString(R.string.unknown_error))
                 }
             }
-        }
-        else {
+        } else {
             showSnackbar(getString(R.string.insufficient_permissions))
             requestPermissions(LOCATION_PERMISSION_ADD_GEOFENCE)
         }
@@ -167,16 +163,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
 
     private fun removeGeofence() {
         if (checkPermissions()) {
-            geofencingClient?.removeGeofences(getGeofencePendingIntent())?.addOnCompleteListener {
+            geofencingClient.removeGeofences(getGeofencePendingIntent())?.addOnCompleteListener {
                 if (it.isSuccessful) {
                     selectedLocationMarker?.remove()
                     selectedLocationMarker = null
                     geofenceCircle?.remove()
                     stopService(Intent(this, LocationUpdatesService::class.java))
-                    btn_remove_geofence.isVisible = false
+                    btnRemoveGeofence.isVisible = false
                     showSnackbar(getString(R.string.geofence_removed))
-                }
-                else {
+                } else {
                     showSnackbar(it.exception?.localizedMessage ?: getString(R.string.unknown_error))
                 }
             }
@@ -266,7 +261,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
                 showSnackbar(R.string.permission_denied_explanation, R.string.settings, View.OnClickListener {
                     val intent = Intent().apply {
                         action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-                        data = Uri.fromParts("package", getPackageName(), null)
+                        data = Uri.fromParts("package", packageName, null)
                         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     }
                     startActivity(intent)

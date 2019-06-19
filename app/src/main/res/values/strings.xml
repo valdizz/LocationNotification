@@ -1,9 +1,7 @@
 <resources>
     <string name="app_name">Location Notification</string>
     <string name="title_activity_maps">Location Notification</string>
-    <string name="location_permission_required">Location permission is required to run app</string>
     <string name="selected_marker_title">(%1$s : %2$s)</string>
-    <string name="user_marker_title">I\'m here</string>
     <string name="notification_title">Location Notification</string>
     <string name="notification_text">You are in the marked place!</string>
     <string name="notification_service_title">Location updates service</string>

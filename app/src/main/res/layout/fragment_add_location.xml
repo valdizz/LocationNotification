@@ -19,7 +19,7 @@
             android:padding="16dp">
 
         <EditText
-                android:id="@+id/et_latitude"
+                android:id="@+id/etLatitude"
                 android:hint="@string/latitude"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -29,7 +29,7 @@
                 tools:ignore="Autofill"/>
 
         <EditText
-                android:id="@+id/et_longitude"
+                android:id="@+id/etLongitude"
                 android:hint="@string/longitude"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -48,7 +48,7 @@
             android:paddingBottom="16dp">
 
         <Button
-                android:id="@+id/btn_cancel"
+                android:id="@+id/btnCancel"
                 android:text="@android:string/cancel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -56,7 +56,7 @@
                 style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"/>
 
         <Button
-                android:id="@+id/btn_ok"
+                android:id="@+id/btnOk"
                 android:text="@android:string/ok"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
